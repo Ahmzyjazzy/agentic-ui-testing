@@ -1,0 +1,94 @@
+@font-face {
+  font-family: "Ciscela";
+  src: url("/fonts/Ciscela-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --primary: #7856FF;
+    --primary-light: #F0ECFF;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Square/Revolut style: sharp cards + inputs, pill buttons. Same values as
+     bookmi/apps/web so a design tweak there ports 1-1. */
+  .card { @apply bg-white rounded-none border border-gray-200; }
+  .card-elevated { @apply bg-white rounded-none border border-gray-200 shadow-medium; }
+
+  .input-field {
+    @apply w-full px-4 py-3 rounded-none border border-gray-200 bg-white outline-none
+           focus:border-primary focus:ring-2 focus:ring-primary-light
+           transition-all duration-200
+           placeholder:text-gray-400
+           min-h-[44px] text-base
+           disabled:bg-gray-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply px-4 sm:px-6 py-3 bg-primary text-white rounded-button font-medium
+           hover:bg-primary-hover active:scale-95
+           transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100
+           inline-flex items-center justify-center gap-2
+           min-h-[44px] text-sm sm:text-base;
+  }
+
+  .btn-secondary {
+    @apply px-4 sm:px-6 py-3 bg-white text-gray-900 rounded-button font-medium
+           border border-gray-200 hover:bg-gray-50 active:scale-95
+           transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed
+           inline-flex items-center justify-center gap-2
+           min-h-[44px] text-sm sm:text-base;
+  }
+}
+
+:root { --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); filter: blur(5px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.anim-fade-up {
+  animation: fade-up 700ms var(--ease-out-strong) both;
+  animation-delay: var(--anim-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-fade-up { animation-duration: 200ms; }
+}
+
+[data-slot="select-trigger"], .input-field { border-radius: 0 !important; }
