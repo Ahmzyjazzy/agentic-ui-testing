@@ -1,34 +1,27 @@
-# Step 1 — Testing by hand
+# Step 2 — Playwright, the normal way
 
-You are on the **`step-1-manual`** branch of the Bookmi UI testing codelab.
-There is no test tooling here at all: just the app, and you.
+You are on the **`step-2-playwright`** branch. The app is the same as step 1;
+what's new is a hand-written Playwright suite that depends on CSS selectors.
 
 ![Landing, sign up, claim your page, dashboard](docs/screenshots/flow.png)
 
 <sub>The app you'll be testing: landing → sign up → claim your page → dashboard.</sub>
 
-## The demo steps:
-
-No automation on this branch — you are the test runner.
-
-**1. Start the app.**
-
 ```bash
-make install
-make dev          # http://localhost:5173
+make install               # app deps + @playwright/test
+npx playwright install chromium
+make test                  # 5 tests, green
 ```
 
-**2. Walk the journey by hand.** Landing → **Get started** → sign up → claim
-your page → dashboard. Then log out and sign back in with the seeded host,
-`host@bookmi.test` / `password`.
+Then break it on purpose:
 
-**3. Check every item** on the release checklist in
-[docs/step-1-manual.md](docs/step-1-manual.md) — the four stat cards, the five
-booking rows, the heading that reads "Wallet overview".
+```bash
+make break-ui              # renames .btn-login-v2, .nav-signin, .dash-title
+make test                  # red — but the app still works for humans
+make restore-ui
+```
 
-**4. Now do it again.** And again next release, on another browser. That
-repetition is the point of this step: it is slow, boring, and easy to skip
-under pressure.
+Full walkthrough: **[docs/step-2-playwright.md](docs/step-2-playwright.md)**.
 
 ## Branches in this codelab
 
@@ -38,5 +31,3 @@ under pressure.
 | `step-2-playwright` | Hand-written Playwright tests with CSS selectors, and a script that breaks them |
 | `step-3-intent` | The same tests written as intent, run by Antigravity CLI (BrowserMCP + Playwright skill) |
 | `main` | The final setup: intent files, generated specs, CI workflow, full guide |
-
-Full walkthrough: `git checkout main` and read the README there.

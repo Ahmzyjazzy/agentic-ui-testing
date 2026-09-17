@@ -1,16 +1,16 @@
 {
-  "name": "agentic-ui-testing",
+  "name": "bookmi-ui-testing",
   "private": true,
   "version": "0.1.0",
   "description": "Codelab: from brittle selectors to intent-driven UI testing, on the Bookmi (Qorelly) demo app",
-  "packageManager": "pnpm@10.15.0",
-  "engines": {
-    "node": ">=20.19.0",
-    "pnpm": ">=10.0.0"
-  },
   "scripts": {
-    "dev": "pnpm --filter bookmi-demo-app dev",
-    "build": "pnpm --filter bookmi-demo-app build",
-    "preview": "pnpm --filter bookmi-demo-app preview"
+    "dev": "npm run dev --prefix demo-app",
+    "build": "npm run build --prefix demo-app",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.49.1"
   }
 }
