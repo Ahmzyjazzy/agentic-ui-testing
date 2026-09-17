@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 perl -pi -e 's/btn-primary btn-login-v2/btn-primary auth-submit/' demo-app/src/pages/LoginPage.tsx
-perl -pi -e 's/>Sign in</>Log in</' demo-app/src/pages/LoginPage.tsx
+perl -pi -e 's/: "Sign in"}/: "Log in"}/' demo-app/src/pages/LoginPage.tsx
 perl -pi -e 's/nav-signin inline-flex/nav-login inline-flex/' demo-app/src/pages/LandingPage.tsx
 perl -pi -e 's/dash-title font-display/page-heading font-display/' demo-app/src/pages/DashboardPage.tsx
 echo "UI renamed:"
