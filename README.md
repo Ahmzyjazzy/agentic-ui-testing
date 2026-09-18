@@ -16,6 +16,7 @@ make install                        # pnpm install (workspace: root + demo-app)
 pnpm exec playwright install chromium
 make test                           # green, headless
 make test-headed SLOWMO=600         # or watch it in a real browser
+make test SPEC=tests/auth/login.spec.ts   # narrow it to one file
 ```
 
 **2. Read the login spec out loud.** Every step is pinned to a CSS selector:

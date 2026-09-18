@@ -51,6 +51,11 @@ Headless is right for CI, but on stage people want to see the browser:
 | `make test-chrome` | Drives your installed Google Chrome instead of bundled Chromium |
 | `make test-ui` | Playwright's trace explorer — run tests, then replay each action |
 | `make test-debug` | Playwright Inspector — step through action by action |
+| `make test-headed SPEC=tests/auth/login.spec.ts` | Just one file — `SPEC=` also works on `test`, `test-chrome`, `test-ui`, `test-debug` |
+
+`SPEC` has to be a variable, not a bare argument: `make test-headed
+tests/auth/login.spec.ts` makes Make treat the path as a second target and it
+fails with *"No rule to make target"*.
 
 **UI mode is a replay, not a live browser.** When it opens, the tests are listed
 but not run, the Actions list is empty and the preview shows `about:blank` —
