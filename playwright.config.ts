@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Standard Playwright setup. `webServer` boots the demo app, so
- * `npx playwright test` is the only command anyone (or any CI job) needs.
+ * `pnpm exec playwright test` is the only command anyone (or any CI job) needs.
  */
 export default defineConfig({
   testDir: "./tests",
