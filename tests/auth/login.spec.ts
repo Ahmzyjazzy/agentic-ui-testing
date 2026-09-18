@@ -26,5 +26,5 @@ test("wrong password is rejected", async ({ page }) => {
   await page.fill("#password", "not-the-password");
   await page.click("button.btn-login-v2");
 
-  await expect(page.locator("p.login-error")).toHaveText("Invalid email or password");
+  await expect(page.locator("div.login-error")).toHaveText("Invalid email or password");
 });

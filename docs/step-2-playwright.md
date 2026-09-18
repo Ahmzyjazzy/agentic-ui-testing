@@ -17,6 +17,7 @@ pnpm exec playwright install chromium
 ```
 playwright.config.ts          # baseURL + webServer (boots the demo app for you)
 tests/auth/login.spec.ts      # sign-in journey
+tests/auth/signup.spec.ts     # signup + claim-your-page journey
 tests/dashboard/wallet.spec.ts# dashboard cards, bookings table, drifting values
 ```
 
@@ -36,7 +37,7 @@ await expect(page.locator("h1.dash-title")).toHaveText("Wallet overview");
 make test        # or: pnpm exec playwright test
 ```
 
-Five tests pass in a couple of seconds, headless, no clicking. This is a real
+The suite passes in a couple of seconds, headless, no clicking. This is a real
 improvement over step 1 and worth saying so.
 
 Watch it work if you like: `make test-headed`, or `make test-ui` for
