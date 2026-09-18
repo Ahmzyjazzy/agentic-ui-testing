@@ -7,18 +7,42 @@ what's new is a hand-written Playwright suite that depends on CSS selectors.
 
 <sub>The app you'll be testing: landing → sign up → claim your page → dashboard.</sub>
 
+## The demo steps:
+
+**1. Install and run the suite.** Five hand-written specs, green in seconds.
+
 ```bash
-make install               # pnpm install (workspace: root + demo-app)
+make install                        # pnpm install (workspace: root + demo-app)
 pnpm exec playwright install chromium
-make test                  # green, headless
-make test-headed           # same run, visible browser, slowed down
+make test                           # green, headless
+make test-headed SLOWMO=600         # or watch it in a real browser
 ```
 
-Then break it on purpose:
+**2. Read the login spec out loud.** Every step is pinned to a CSS selector:
+`#email`, `button.btn-login-v2`, `h1.dash-title`.
 
 ```bash
-make break-ui              # renames .btn-login-v2, .nav-signin, .dash-title
-make test                  # red — but the app still works for humans
+cat tests/auth/login.spec.ts
+```
+
+**3. Break the UI.** A designer renames three classes and a button label.
+Nothing changes for a human using the app — check it in the browser.
+
+```bash
+make break-ui
+```
+
+**4. Run the suite again.** Red, on a timeout waiting for a button that is
+right there on screen.
+
+```bash
+make test                           # ✘ waiting for locator('button.btn-login-v2')
+make test-headed SLOWMO=600         # watch it sit there and give up
+```
+
+**5. Put the UI back.**
+
+```bash
 make restore-ui
 ```
 
