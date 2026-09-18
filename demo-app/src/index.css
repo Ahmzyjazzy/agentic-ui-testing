@@ -76,11 +76,44 @@
   }
 }
 
-:root { --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); }
+/* Motion foundations.
+   --ease-out-strong: stronger than CSS ease-out; entrances start fast and
+   settle, so the interface reads as responsive rather than sluggish. */
+:root {
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+}
 
+/* Scroll reveal — elements fade/rise once when they enter the viewport.
+   Driven by the Reveal component (IntersectionObserver sets data-visible). */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px) scale(0.97);
+  filter: blur(6px);
+  transition:
+    opacity 800ms var(--ease-out-strong),
+    transform 800ms var(--ease-out-strong),
+    filter 800ms var(--ease-out-strong);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+.reveal[data-visible="true"] {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* Load-time entrance — for above-the-fold content (hero, auth forms) where
+   waiting for an IntersectionObserver would be wasted. */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(28px); filter: blur(5px); }
-  to { opacity: 1; transform: none; filter: none; }
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+    filter: blur(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
 }
 .anim-fade-up {
   animation: fade-up 700ms var(--ease-out-strong) both;
@@ -88,7 +121,41 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .anim-fade-up { animation-duration: 200ms; }
+  .reveal {
+    transition: opacity 200ms ease;
+    transform: none;
+    filter: none;
+  }
+  .anim-fade-up {
+    animation-duration: 200ms;
+    animation-name: fade-only;
+  }
+  .animate-marquee,
+  .animate-marquee-slow {
+    animation-play-state: paused;
+  }
+}
+@keyframes fade-only {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-[data-slot="select-trigger"], .input-field { border-radius: 0 !important; }
+/* Hero notification marquee — track holds two identical groups, sliding one
+   group-width per loop so the wrap-around is seamless. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+/* Wider track (Who it's for carousel) — slower so tiles stay readable/clickable. */
+.animate-marquee-slow {
+  animation: marquee 80s linear infinite;
+}
+
+/* Global override — any card/input that sneaks in a rounded utility should
+   still land square. Mirrors qore-menu's rule. */
+.input-field {
+  border-radius: 0 !important;
+}

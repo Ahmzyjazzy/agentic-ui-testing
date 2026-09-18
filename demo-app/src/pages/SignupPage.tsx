@@ -3,18 +3,16 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { SplitAuthLayout } from "@/components/SplitAuthLayout";
 import { FormMessage } from "@/components/FormMessage";
-import { signIn } from "@/lib/auth";
+import { signUp } from "@/lib/auth";
 
 /**
- * Bookmi's sign-in page. Same layout and copy as the product; the submit
- * handler checks src/data/credentials.json instead of calling Supabase.
- *
- * Note for the codelab: `btn-login-v2` and the input ids are the exact
- * selectors the hand-written Playwright test grabs. scripts/break-ui.sh
- * renames them to show how brittle that is.
+ * Mock signup. No API and no email verification: the account is kept in
+ * sessionStorage for the life of the tab, then the user claims a page name
+ * in onboarding before landing on the dashboard.
  */
-export default function LoginPage() {
+export default function SignupPage() {
   const navigate = useNavigate();
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -24,14 +22,17 @@ export default function LoginPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
     setLoading(true);
-    // Small delay so the button's loading state is visible during the demo.
     window.setTimeout(() => {
       try {
-        const user = signIn(email, password);
-        navigate(user.slug ? "/dashboard" : "/onboarding", { replace: true });
+        signUp(fullName, email, password);
+        navigate("/onboarding", { replace: true });
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to sign in");
+        setError(err instanceof Error ? err.message : "Failed to sign up");
         setLoading(false);
       }
     }, 300);
@@ -49,11 +50,28 @@ export default function LoginPage() {
         </div>
         <div className="card p-8">
           <div className="mb-6">
-            <h2 className="font-display text-3xl mb-1">Sign in</h2>
-            <p className="text-sm text-muted-foreground">Manage your bookings and page.</p>
+            <h2 className="font-display text-3xl mb-1">Create your page</h2>
+            <p className="text-sm text-muted-foreground">Free forever — we only earn when you do.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium mb-2">
+                Your name
+              </label>
+              <input
+                id="fullName"
+                name="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="input-field"
+                placeholder="Ada Lovelace"
+                required
+                autoComplete="name"
+              />
+            </div>
+
             <div>
               <label htmlFor="email" className="block text-sm font-medium mb-2">
                 Email
@@ -83,9 +101,10 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="input-field pr-11"
-                  placeholder="••••••••"
+                  placeholder="At least 8 characters"
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
+                  minLength={8}
                 />
                 <button
                   type="button"
@@ -98,23 +117,19 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {error && <FormMessage variant="error" message={error} className="login-error" />}
+            {error && <FormMessage variant="error" message={error} className="signup-error" />}
 
-            <button type="submit" disabled={loading} className="btn-primary btn-login-v2 w-full">
-              {loading ? "Signing in…" : "Sign in"}
+            <button type="submit" disabled={loading} className="btn-primary btn-signup-v2 w-full">
+              {loading ? "Creating your page…" : "Create your page"}
             </button>
           </form>
 
           <div className="mt-6 text-center text-sm">
-            Don't have an account?{" "}
-            <Link to="/auth/signup" className="text-primary hover:underline font-medium">
-              Sign up
+            Already have an account?{" "}
+            <Link to="/auth/login" className="text-primary hover:underline font-medium">
+              Sign in
             </Link>
           </div>
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            Demo account: <span className="font-mono">host@bookmi.test</span> /{" "}
-            <span className="font-mono">password</span>
-          </p>
         </div>
       </div>
     </SplitAuthLayout>

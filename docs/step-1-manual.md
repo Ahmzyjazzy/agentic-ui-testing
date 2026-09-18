@@ -19,7 +19,9 @@ services. This demo build has three screens and no backend at all:
 
 | Screen | Route | What it does |
 |---|---|---|
-| Landing | `/` | Hero, how-it-works, features, CTAs into sign-in |
+| Landing | `/` | The full Bookmi marketing page: hero, how it works, bookings/tips mockups, features, who it's for, FAQ, CTA |
+| Sign up | `/auth/signup` | Mock account creation — kept in sessionStorage, no API, no email verification |
+| Claim your page | `/onboarding` | Display name → auto-generated slug → dashboard |
 | Sign in | `/auth/login` | Checks `demo-app/src/data/credentials.json` — no API call |
 | Dashboard | `/dashboard` | Wallet overview, four stat cards, recent bookings, services |
 
@@ -32,7 +34,11 @@ the numbers you read in ten seconds. Remember that — it matters in step 2.
 
 Do this by hand, out loud, while the room watches:
 
-- [ ] Open http://localhost:5173 — the hero and the three service prices render
+- [ ] Open http://localhost:5173 — the hero renders and the notification marquee scrolls
+- [ ] Scroll the whole page — every section reveals: how it works, bookings/tips mockups, features, who it's for, FAQ
+- [ ] Click **Get started** — sign up with a new name, email and password
+- [ ] On "Claim your page", check the slug is suggested from your name, then continue
+- [ ] You land on the dashboard as the new host; log out
 - [ ] Click **Sign in** in the nav — the split-screen login page opens
 - [ ] Enter `host@bookmi.test` / `password`, submit
 - [ ] The dashboard heading reads **Wallet overview**
