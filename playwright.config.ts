@@ -25,7 +25,8 @@ export default defineConfig({
     baseURL: process.env.APP_URL ?? "http://localhost:5173",
     headless: !headed,
     launchOptions: { slowMo },
-    trace: "on-first-retry",
+    // Always trace locally so UI mode and the trace viewer have something to show.
+    trace: process.env.CI ? "on-first-retry" : "on",
     screenshot: "only-on-failure",
     video: headed ? "off" : "off",
   },

@@ -24,7 +24,7 @@ test-headed:        ## Watch it: real browser window, slowed down (SLOWMO=$(SLOW
 test-chrome:        ## Same, but drive your installed Google Chrome
 	HEADED=1 SLOWMO=$(SLOWMO) BROWSER=chrome pnpm exec playwright test
 
-test-ui:            ## Playwright's interactive runner (time-travel debugging)
+test-ui:            ## Trace explorer: press the ▶ in the TESTS panel, then click an action
 	pnpm exec playwright test --ui
 
 test-debug:         ## Step through action by action in the Playwright Inspector

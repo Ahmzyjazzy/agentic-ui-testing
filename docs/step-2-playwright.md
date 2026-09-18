@@ -49,8 +49,15 @@ Headless is right for CI, but on stage people want to see the browser:
 | `make test-headed` | Real browser window, one worker, 400ms between actions |
 | `make test-headed SLOWMO=800` | Same, slower — good for a big room |
 | `make test-chrome` | Drives your installed Google Chrome instead of bundled Chromium |
-| `make test-ui` | Playwright's interactive runner, with time-travel debugging |
+| `make test-ui` | Playwright's trace explorer — run tests, then replay each action |
 | `make test-debug` | Playwright Inspector — step through action by action |
+
+**UI mode is a replay, not a live browser.** When it opens, the tests are listed
+but not run, the Actions list is empty and the preview shows `about:blank` —
+that's normal. Press the **▶** at the top of the TESTS panel (or hover a test
+and press its ▶), and once it's green, click the test and then an action in the
+Actions list to see the page at that moment. If you want to *watch* a real
+browser click through the app, use `make test-headed` instead.
 
 Under the hood these are just environment variables the config reads, so you
 can mix them yourself: `HEADED=1 SLOWMO=1000 pnpm exec playwright test tests/auth`.
