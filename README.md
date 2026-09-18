@@ -8,8 +8,8 @@ what's new is a hand-written Playwright suite that depends on CSS selectors.
 <sub>The app you'll be testing: landing → sign up → claim your page → dashboard.</sub>
 
 ```bash
-make install               # app deps + @playwright/test
-npx playwright install chromium
+make install               # pnpm install (workspace: root + demo-app)
+pnpm exec playwright install chromium
 make test                  # 5 tests, green
 ```
 

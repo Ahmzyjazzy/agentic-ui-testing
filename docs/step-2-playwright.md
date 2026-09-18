@@ -8,8 +8,8 @@ Playwright suite, written by hand, pinned to CSS selectors.
 ## Install
 
 ```bash
-make install               # app deps + @playwright/test
-npx playwright install chromium
+make install        # pnpm install — one workspace, root + demo-app
+pnpm exec playwright install chromium
 ```
 
 ## What's in here
@@ -33,7 +33,7 @@ await expect(page.locator("h1.dash-title")).toHaveText("Wallet overview");
 ## Run it — green
 
 ```bash
-make test        # or: npx playwright test
+make test        # or: pnpm exec playwright test
 ```
 
 Five tests pass in a couple of seconds, headless, no clicking. This is a real
