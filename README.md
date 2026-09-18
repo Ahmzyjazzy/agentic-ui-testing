@@ -10,7 +10,8 @@ what's new is a hand-written Playwright suite that depends on CSS selectors.
 ```bash
 make install               # pnpm install (workspace: root + demo-app)
 pnpm exec playwright install chromium
-make test                  # green
+make test                  # green, headless
+make test-headed           # same run, visible browser, slowed down
 ```
 
 Then break it on purpose:

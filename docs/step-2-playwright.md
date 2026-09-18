@@ -40,8 +40,20 @@ make test        # or: pnpm exec playwright test
 The suite passes in a couple of seconds, headless, no clicking. This is a real
 improvement over step 1 and worth saying so.
 
-Watch it work if you like: `make test-headed`, or `make test-ui` for
-Playwright's interactive runner.
+### Watching it work
+
+Headless is right for CI, but on stage people want to see the browser:
+
+| Command | What it does |
+|---|---|
+| `make test-headed` | Real browser window, one worker, 400ms between actions |
+| `make test-headed SLOWMO=800` | Same, slower — good for a big room |
+| `make test-chrome` | Drives your installed Google Chrome instead of bundled Chromium |
+| `make test-ui` | Playwright's interactive runner, with time-travel debugging |
+| `make test-debug` | Playwright Inspector — step through action by action |
+
+Under the hood these are just environment variables the config reads, so you
+can mix them yourself: `HEADED=1 SLOWMO=1000 pnpm exec playwright test tests/auth`.
 
 ## Now break it
 
