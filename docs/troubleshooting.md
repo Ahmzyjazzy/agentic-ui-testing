@@ -49,3 +49,14 @@ If you add a dependency that needs its own build step, add it there too, then
 **`make test-headed` opens nothing** — check you're not overriding `HEADED` in
 your shell, and that a browser is installed: `pnpm exec playwright install chromium`.
 `make test-chrome` additionally needs Google Chrome itself installed.
+
+**`agy -p` prints "no output produced — a tool required the read_file permission"**
+— headless mode cannot prompt for approval, so tool calls are auto-denied. Either
+run `agy` interactively and approve them, or add `--dangerously-skip-permissions`
+to the `-p` command. Scoped `permissions.allow` rules in
+`~/.gemini/antigravity-cli/settings.json` are the documented alternative, but
+there are open reports of them being ignored in `--print` mode.
+
+**A multi-line `agy -p "…"` command does nothing** — a backslash continuation
+only works with *nothing* after it, not even a space. Paste the prompt on one
+line, or run `agy` interactively instead.
