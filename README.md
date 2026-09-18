@@ -3,6 +3,10 @@
 You are on the **`step-1-manual`** branch of the Bookmi UI testing codelab.
 There is no test tooling here at all: just the app, and you.
 
+![Landing, sign up, claim your page, dashboard](docs/screenshots/flow.png)
+
+<sub>The app you'll be testing: landing → sign up → claim your page → dashboard.</sub>
+
 ```bash
 make install
 make dev          # http://localhost:5173
