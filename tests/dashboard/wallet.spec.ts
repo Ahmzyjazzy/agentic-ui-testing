@@ -1,33 +1,48 @@
 import { expect, test } from "@playwright/test";
 
-/** Same brittle style: the dashboard assertions hang off class names too. */
-test.beforeEach(async ({ page }) => {
+// source-intent: e2e/intents/dashboard/wallet-overview.intent.md
+// Role and label locators only — nothing here breaks when a class is renamed.
+
+async function signIn(page: import("@playwright/test").Page) {
   await page.goto("/auth/login");
-  await page.fill("#email", "host@bookmi.test");
-  await page.fill("#password", "password");
-  await page.click("button.btn-login-v2");
-  await expect(page.locator("h1.dash-title")).toBeVisible();
+  await page.getByLabel("Email").fill(process.env.TEST_HOST_EMAIL ?? "host@bookmi.test");
+  await page
+    .getByLabel("Password", { exact: true })
+    .fill(process.env.TEST_HOST_PASSWORD ?? "password");
+  await page.getByRole("button", { name: /^(sign in|log in)$/i }).click();
+  await expect(page.getByRole("heading", { name: "Wallet overview" })).toBeVisible();
+}
+
+test.beforeEach(async ({ page }) => {
+  await signIn(page);
 });
 
-test("shows four telemetry cards with values", async ({ page }) => {
-  const cards = page.locator(".stat-card");
-  await expect(cards).toHaveCount(4);
-
-  for (const value of await page.locator(".stat-card .stat-value").allInnerTexts()) {
-    expect(value.trim()).not.toBe("");
+test("shows the four wallet stat cards", async ({ page }) => {
+  for (const label of [
+    "Wallet balance",
+    "Earnings - 30 days",
+    "Bookings today",
+    "Payout in transit",
+  ]) {
+    await expect(page.getByText(label, { exact: true })).toBeVisible();
   }
 });
 
-test("lists the recent bookings", async ({ page }) => {
-  const rows = page.locator('[data-testid="recent-bookings"] tbody tr');
-  await expect(rows).toHaveCount(5);
-  await expect(rows.first()).toContainText("Chidi Nwosu");
+test("lists the recent bookings, newest first", async ({ page }) => {
+  const rows = page.getByRole("row");
+  // 5 bookings + the header row
+  await expect(rows).toHaveCount(6);
+  await expect(rows.nth(1)).toContainText("Chidi Nwosu");
 });
 
-test("stat values drift while you watch", async ({ page }) => {
-  const wallet = page.locator('[data-testid="wallet-balance"] .stat-value');
-  const before = await wallet.innerText();
+test("wallet balance keeps moving", async ({ page }) => {
+  const card = page.getByTestId("wallet-balance");
+  const before = await card.innerText();
   await page.waitForTimeout(3500);
-  const after = await wallet.innerText();
-  expect(after).not.toBe(before);
+  expect(await card.innerText()).not.toBe(before);
+});
+
+test("host can log out", async ({ page }) => {
+  await page.getByRole("button", { name: /log out/i }).click();
+  await expect(page.getByRole("heading", { name: "Sign in" })).toBeVisible();
 });

@@ -1,113 +1,160 @@
-# Step 3 — Intent instead of selectors
+# Agentic UI Testing — an intent-driven testing codelab
 
-You are on the **`step-3-intent`** branch. Everything from step 2 is here, plus:
+**From brittle selectors to intent: Automated UI testing with Antigravity CLI, BrowserMCP
+and Playwright.**
 
-```
-e2e/intents/…            intent files — what to test, in plain English (you write these)
-e2e/runner/              the output contract + a runner that sets an exit code
-docs/examples/…          answer key: what agy generated when this codelab was built
-mcp_config.example.json  BrowserMCP config for the live demo (not used by the app or CI)
-```
-
-`tests/` still holds only the hand-written specs from step 2 — **the generated
-ones are the lab**. Run the Lab 3 prompt and the agent writes them for you.
+This repo is the hands-on companion to the talk. The app under test is a demo
+build of **Bookmi by Qorelly** — a shareable link where anyone can book and pay
+for your services. No backend at all: landing → sign up → claim your page → dashboard,
+plus sign in for the seeded host.
 
 ![Landing, sign up, claim your page, dashboard](docs/screenshots/flow.png)
 
-<sub>The app you'll be testing: landing → sign up → claim your page → dashboard.</sub>
+<sub>Landing → sign up → claim your page → dashboard. The full landing page is in
+[docs/screenshots/landing-full.png](docs/screenshots/landing-full.png).</sub>
 
-## The demo steps:
+> Everything here is fake by design: credentials live in
+> `demo-app/src/data/credentials.json`, dashboard numbers in
+> `demo-app/src/data/seed.ts`. No API, no database, no payments.
 
-Run these in order — this is the whole story of the talk in six commands.
+---
 
-**1. Break the UI.** A designer renames three classes and a button label.
-Nothing changes for a human using the app.
+## The codelab in four steps
+
+Each step is a branch. Check one out and everything you need for that step is
+there — code, README, docs.
+
+| Step | Branch              | You will                                                                 | Docs                                              |
+| ---- | ------------------- | ------------------------------------------------------------------------ | ------------------------------------------------- |
+| 1    | `step-1-manual`     | Test the login journey by hand and feel the repetition                   | [step-1-manual.md](docs/step-1-manual.md)         |
+| 2    | `step-2-playwright` | Write a normal Playwright suite, then break it with one rename           | [step-2-playwright.md](docs/step-2-playwright.md) |
+| 3    | `step-3-intent`     | Run the same journey as _intent_ — BrowserMCP, then the Playwright skill | [step-3-intent.md](docs/step-3-intent.md)         |
+| 4    | `main`              | Put intent files in your pipeline                                        | [step-4-ci.md](docs/step-4-ci.md)                 |
+
+`main` is the finished setup: the app, intent files, generated specs, the CI
+workflow and all the docs.
+
+---
+
+## Quick start
 
 ```bash
-make break-ui
+git clone <this repo> agentic-ui-testing
+cd agentic-ui-testing
+make install                 # pnpm install — one workspace (root + demo-app)
+pnpm exec playwright install chromium
+make dev                     # http://localhost:5173
 ```
 
-**2. Watch the hand-written spec die.** It was pinned to those class names.
+Sign in with **`host@bookmi.test`** / **`password`**.
+
+Run the suite (it starts the app itself):
 
 ```bash
-pnpm exec playwright test tests/auth/login.spec.ts        # ✘ TimeoutError: button.btn-login-v2
+make test
 ```
 
-**3. Show the intent file.** Plain English, no selectors — this is what you
-actually meant to test, and it is still true.
+---
+
+## Follow the talk, live
 
 ```bash
-cat e2e/intents/auth/login.intent.md
-```
+# Step 1 — no automation at all
+git checkout step-1-manual && make dev
+# click through docs/step-1-manual.md by hand
 
-**4. Generate the spec from it.** The agent reads the intent, writes the
-TypeScript, and runs it until it passes. `tests/auth/login.generated.spec.ts`
-does not exist until this command creates it.
+# Step 2 — the normal way, then break it
+git checkout step-2-playwright
+make test                    # green
+make break-ui                # renames .btn-login-v2, .nav-signin, .dash-title
+make test                    # red — but the app still works for humans
 
-```bash
-agy -p "Read e2e/intents/auth/login.intent.md and create tests/auth/login.generated.spec.ts \
-using getByRole/getByLabel locators — no CSS classes or ids. Run it with \
-pnpm exec playwright test until it passes. Do not change any application code. \
-Add a '// source-intent:' header naming the intent file."
-```
-
-Prefer it interactive? Run `agy`, then paste the Lab 3 prompt from
-[docs/prompts.md](docs/prompts.md). Offline or the agent misbehaves?
-`make restore-generated` drops the reference spec in so the demo continues.
-
-**5. Run the generated spec against the same broken UI.** Green — it looks for
-the button that signs you in, not for `.btn-login-v2`.
-
-```bash
-pnpm exec playwright test tests/auth/login.generated.spec.ts   # ✓
-make test-headed SLOWMO=600                                    # or watch it in a real browser
-```
-
-**6. Put the UI back.**
-
-```bash
+# Step 3 — intent, while the UI is still broken
+git checkout step-3-intent
+agy                          # paste the Lab 1 / Lab 2 prompts from docs/prompts.md
+pnpm exec playwright test tests/auth/login.generated.spec.ts   # role-based: green
 make restore-ui
+
+# Step 4 — the pipeline
+git checkout main
+cat docs/step-4-ci.md
 ```
 
-## Regenerating the whole suite
+---
 
-Step 4 above generates one spec, because on stage one is enough. Locally you
-usually want all of them — after a real UI change, or just to see the workflow
-end to end:
+## Prerequisites
+
+- **Node.js 20.19+**, **pnpm 10+** (`corepack enable && corepack prepare pnpm@10.15.0 --activate`), **Git**, **Chrome**
+- macOS, Linux, or Windows via **WSL**
+- For step 3: **Antigravity CLI** and a Google account
 
 ```bash
-make dev          # in another terminal: the agent runs what it writes
-make generate     # every file in e2e/intents/ → tests/<same path>.generated.spec.ts
+# Antigravity CLI (macOS / Linux)
+curl -fsSL https://antigravity.google/cli/install.sh | bash
+agy                                   # first run signs you in
+
+# Playwright CLI + the skill that teaches the agent to drive it
+pnpm add -g @playwright/cli@latest
+pnpm exec playwright install chromium chrome
+mkdir -p ~/.gemini/skills
+pnpm dlx degit microsoft/playwright-cli/skills/playwright-cli ~/.gemini/skills/playwright-cli
 ```
 
-That is `scripts/generate-specs.sh`: one `agy` call per intent file, the Lab 3
-prompt each time, then a Playwright run over everything it produced. Useful
-flags:
+BrowserMCP setup for the live demo: [docs/browsermcp.md](docs/browsermcp.md).
 
-| Command | What it does |
-|---|---|
-| `make generate INTENT=e2e/intents/auth/login.intent.md` | Just that one intent |
-| `DRY_RUN=1 ./scripts/generate-specs.sh` | Print the prompts it would send, call nothing |
-| `VERIFY=0 ./scripts/generate-specs.sh` | Generate without the final test run |
-| `APP_URL=… ./scripts/generate-specs.sh` | Point the agent at another running copy |
+---
 
-Generated specs are gitignored on this branch — they are the lab. On `main`
-they are committed, because that is the point: intent and spec reviewed side by
-side.
+## What's in `main`
 
-The agent prompts from [docs/prompts.md](docs/prompts.md) (Labs 1 and 2) also
-pass against the broken UI — run those first if you want the wow before the
-workflow.
+```
+demo-app/                     Vite + React app (Bookmi design system, hardcoded auth)
+  src/data/credentials.json   the "auth backend"
+  src/data/seed.ts            dashboard numbers
+tests/                        Playwright specs, generated from the intents (login, signup, dashboard)
+e2e/intents/                  intent files — what to test, in plain English
+e2e/runner/                   output contract + runner for agent-driven runs
+scripts/break-ui.sh           rename the classes selector-based tests depend on
+docs/                         one doc per step, prompts, troubleshooting
+docs/examples/                the original selector-based specs, for contrast
+.github/workflows/e2e.yml     CI: plain Playwright, no agent
+mcp_config.example.json       BrowserMCP config (demo only, not used by the app)
+```
 
-Walkthrough: **[docs/step-3-intent.md](docs/step-3-intent.md)** ·
-Prompts: **[docs/prompts.md](docs/prompts.md)** ·
-BrowserMCP: **[docs/browsermcp.md](docs/browsermcp.md)**
+### Commands
 
-## Branches in this codelab
+| Command                             | What it does                                             |
+| ----------------------------------- | -------------------------------------------------------- |
+| `make install`                      | Install everything (`pnpm install` across the workspace) |
+| `make dev`                          | Run the app on http://localhost:5173                     |
+| `make test`                         | Run the Playwright suite (boots the app itself)          |
+| `make test-headed` | Watch it run in a real browser, slowed down (`SLOWMO=800` to go slower) |
+| `make test-chrome` | Same, driving your installed Google Chrome |
+| `make test-ui` / `make test-debug` | Playwright's interactive runner / the Inspector |
+| `make break-ui` / `make restore-ui` | Break and repair the selector-based tests                |
+| `./e2e/runner/run-intents.sh`       | Run every intent file through `agy` (needs Antigravity)  |
 
-| Branch              | What it adds                                                                    |
-| ------------------- | ------------------------------------------------------------------------------- |
-| `step-1-manual`     | The app only — test it by hand                                                  |
-| `step-2-playwright` | Hand-written Playwright tests with CSS selectors, and a script that breaks them |
-| `step-3-intent`     | Intent files, agent prompts, BrowserMCP demo config, generated spec             |
-| `main`              | The final setup: intent files, generated specs, CI workflow, full guide         |
+---
+
+## The idea in one paragraph
+
+A hand-written Playwright test knows `#email`, `button.btn-login-v2` and
+`h1.dash-title` — implementation details. Rename a class and the test breaks
+while the product is fine. An intent file says _"sign in as the host and check
+the dashboard heading reads Wallet overview"_, which stays true through
+redesigns. Antigravity CLI can execute that intent directly (great for demos and
+nightly smoke runs) or turn it into an ordinary Playwright spec using role and
+label locators — which is what runs on every pull request, with no agent and no
+AI cost.
+
+---
+
+## Credits
+
+- Talk and repo: Ahmed Olanrewaju
+- Demo app design: [Bookmi by Qorelly](https://qorelly.com)
+- Inspired by the Google codelab
+  [Automated UI testing with Antigravity](https://codelabs.developers.google.com/agentic-ui-automation-with-antigravity)
+  by Darren "Dazbo" Lester (CC BY 4.0)
+- [Antigravity CLI](https://antigravity.google/docs/cli/install) ·
+  [BrowserMCP](https://docs.browsermcp.io) ·
+  [Playwright](https://playwright.dev)
