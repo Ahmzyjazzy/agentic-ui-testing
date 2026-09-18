@@ -1,0 +1,6 @@
+packages:
+  - "demo-app"
+
+# pnpm 10 blocks postinstall scripts by default; Vite's esbuild needs its own.
+onlyBuiltDependencies:
+  - esbuild

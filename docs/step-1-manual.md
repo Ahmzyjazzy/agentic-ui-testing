@@ -8,7 +8,7 @@ critical journey before each release.
 ## Run the app
 
 ```bash
-make install     # npm install --prefix demo-app
+make install     # pnpm install (workspace: root + demo-app)
 make dev         # http://localhost:5173
 ```
 
