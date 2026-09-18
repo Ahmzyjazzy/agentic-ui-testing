@@ -74,6 +74,15 @@ make test
 Refresh the app in your browser: it works perfectly. Sign in by hand: it works.
 **Nothing broke for the user — only the tests broke.**
 
+Want the room to *see* it fail? Run the broken suite headed:
+
+```bash
+make test-headed SLOWMO=600
+```
+
+The browser opens, fills the form, and then sits there waiting for a button
+that no longer has that class until Playwright times out.
+
 Undo it when you're done:
 
 ```bash
