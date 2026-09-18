@@ -1,5 +1,5 @@
 {
-  "name": "bookmi-ui-testing",
+  "name": "agentic-ui-testing",
   "private": true,
   "version": "0.1.0",
   "description": "Codelab: from brittle selectors to intent-driven UI testing, on the Bookmi (Qorelly) demo app",
