@@ -76,7 +76,9 @@ the button that signs you in, not for `.btn-login-v2`.
 
 ```bash
 pnpm exec playwright test tests/auth/login.generated.spec.ts   # ✓
-make test-headed SLOWMO=600                                    # or watch it in a real browser
+
+# or watch that one file run in a real browser
+make test-headed SLOWMO=600 SPEC=tests/auth/login.generated.spec.ts
 ```
 
 **6. Put the UI back.**

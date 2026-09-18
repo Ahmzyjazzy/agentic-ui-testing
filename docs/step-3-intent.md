@@ -137,7 +137,8 @@ watch. Have `make restore-generated` ready as a fallback if the agent stalls.
 To show it rather than tell it, run either one with a visible browser:
 
 ```bash
-make test-headed SLOWMO=600     # HEADED=1 + slow motion, one worker
+make test-headed SLOWMO=600 SPEC=tests/auth/login.generated.spec.ts   # one file, visible browser
+make test-headed SLOWMO=600     # the whole suite
 make test-chrome                # same, in your installed Google Chrome
 ```
 
