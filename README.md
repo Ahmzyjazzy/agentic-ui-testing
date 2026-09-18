@@ -44,16 +44,32 @@ cat e2e/intents/auth/login.intent.md
 TypeScript, and runs it until it passes. `tests/auth/login.generated.spec.ts`
 does not exist until this command creates it.
 
+Run it **interactively** — this is the better demo, because the room watches the
+agent ask permission before it reads and writes your files:
+
 ```bash
-agy -p "Read e2e/intents/auth/login.intent.md and create tests/auth/login.generated.spec.ts \
-using getByRole/getByLabel locators — no CSS classes or ids. Run it with \
-pnpm exec playwright test until it passes. Do not change any application code. \
-Add a '// source-intent:' header naming the intent file."
+agy
 ```
 
-Prefer it interactive? Run `agy`, then paste the Lab 3 prompt from
-[docs/prompts.md](docs/prompts.md). Offline or the agent misbehaves?
-`make restore-generated` drops the reference spec in so the demo continues.
+then paste the Lab 3 prompt from [docs/prompts.md](docs/prompts.md) and approve
+each tool call.
+
+One-shot version, for when you don't want to approve anything by hand:
+
+```bash
+agy -p "Read e2e/intents/auth/login.intent.md and create tests/auth/login.generated.spec.ts using getByRole/getByLabel locators — no CSS classes or ids. Run it with pnpm exec playwright test until it passes. Do not change any application code. Add a '// source-intent:' header naming the intent file." --dangerously-skip-permissions
+```
+
+> **`-p` needs the permission flag.** Headless mode can't prompt, so without
+> `--dangerously-skip-permissions` every tool call is auto-denied and you get
+> *"no output produced — a tool required the read_file permission"*. This repo
+> is a throwaway demo, so skipping is fine here; on a real codebase prefer the
+> interactive run. (Scoped `permissions.allow` rules in
+> `~/.gemini/antigravity-cli/settings.json` are the documented alternative, but
+> there are open reports of them being ignored in headless mode.)
+
+Offline or the agent stalls? `make restore-generated` drops the reference spec
+in so the demo continues.
 
 **5. Run the generated spec against the same broken UI.** Green — it looks for
 the button that signs you in, not for `.btn-login-v2`.

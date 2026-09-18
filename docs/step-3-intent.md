@@ -115,15 +115,21 @@ make break-ui                                                  # 1. rename the c
 pnpm exec playwright test tests/auth/login.spec.ts             # 2. ✘ hand-written spec dies
 cat e2e/intents/auth/login.intent.md                           # 3. the intent still holds
 
-agy -p "Read e2e/intents/auth/login.intent.md and create \
-tests/auth/login.generated.spec.ts using getByRole/getByLabel locators — \
-no CSS classes or ids. Run it with pnpm exec playwright test until it passes. \
-Do not change any application code. Add a '// source-intent:' header."
-                                                               # 4. the agent writes the spec
+agy                                                            # 4. paste the Lab 3 prompt,
+                                                               #    approve the tool calls
+#    …or headless, which cannot prompt and so needs the flag:
+#    agy -p "<Lab 3 prompt>" --dangerously-skip-permissions
 
 pnpm exec playwright test tests/auth/login.generated.spec.ts   # 5. ✓ passes on the SAME broken UI
 make restore-ui                                                # 6. put the UI back
 ```
+
+**Permissions.** Interactive `agy` asks before it reads or writes a file. In
+headless (`-p`) mode there is nobody to ask, so tools are auto-denied and you
+get *"no output produced — a tool required the read_file permission"*. Add
+`--dangerously-skip-permissions` (fine for this demo repo), or configure scoped
+`permissions.allow` rules in `~/.gemini/antigravity-cli/settings.json` — with the
+caveat that those are reported to be ignored in headless mode.
 
 Step 4 is the one people came for: the file appears in the editor while they
 watch. Have `make restore-generated` ready as a fallback if the agent stalls.

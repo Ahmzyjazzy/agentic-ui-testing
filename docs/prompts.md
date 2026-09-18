@@ -3,6 +3,31 @@
 Every prompt used in the codelab, ready to paste into `agy`. Keep this open on
 a second screen while presenting.
 
+## How to run them
+
+**Interactive (what to use on stage).** Start the agent and paste the prompt:
+
+```bash
+agy
+> <paste a prompt from below>
+```
+
+The agent asks permission before reading or writing files — approve each one.
+That is a good thing to let the audience see.
+
+**Headless one-shot.** `-p` cannot prompt, so it needs the permission flag or
+every tool call is auto-denied (*"no output produced — a tool required the
+read_file permission"*):
+
+```bash
+agy -p "<prompt>" --dangerously-skip-permissions
+```
+
+Fine for this throwaway demo repo and for CI. On a real codebase, prefer the
+interactive run or scoped `permissions.allow` rules in
+`~/.gemini/antigravity-cli/settings.json` — though there are open reports of
+those rules being ignored in headless mode.
+
 ## Lab 1 — BrowserMCP (your own Chrome)
 
 ```
