@@ -23,20 +23,20 @@ build:              ## Production build of the demo app
 preview:            ## Serve the production build
 	pnpm preview
 
-test:               ## Run the suite headless (SPEC=path/to.spec.ts to narrow it)
-	pnpm exec playwright test $(SPEC)
+test:               ## Run the Playwright suite headless (starts the app itself)
+	pnpm exec playwright test
 
-test-headed:        ## Watch it: real browser, slowed down (SLOWMO=$(SLOWMO)ms, SPEC=… to narrow)
-	HEADED=1 SLOWMO=$(SLOWMO) pnpm exec playwright test $(SPEC)
+test-headed:        ## Watch it: real browser window, slowed down (SLOWMO=$(SLOWMO)ms)
+	HEADED=1 SLOWMO=$(SLOWMO) pnpm exec playwright test
 
 test-chrome:        ## Same, but drive your installed Google Chrome
-	HEADED=1 SLOWMO=$(SLOWMO) BROWSER=chrome pnpm exec playwright test $(SPEC)
+	HEADED=1 SLOWMO=$(SLOWMO) BROWSER=chrome pnpm exec playwright test
 
 test-ui:            ## Trace explorer: press the ▶ in the TESTS panel, then click an action
-	pnpm exec playwright test --ui $(SPEC)
+	pnpm exec playwright test --ui
 
 test-debug:         ## Step through action by action in the Playwright Inspector
-	PWDEBUG=1 HEADED=1 pnpm exec playwright test $(SPEC)
+	PWDEBUG=1 HEADED=1 pnpm exec playwright test
 
 generate:           ## Regenerate every spec from e2e/intents/ with agy (INTENT=… for one)
 	./scripts/generate-specs.sh $(INTENT)

@@ -3,6 +3,7 @@
 Every prompt used in the codelab, ready to paste into `agy`. Keep this open on
 a second screen while presenting.
 
+<<<<<<< HEAD
 ## How to run them
 
 **Interactive (what to use on stage).** Start the agent and paste the prompt:
@@ -28,6 +29,8 @@ interactive run or scoped `permissions.allow` rules in
 `~/.gemini/antigravity-cli/settings.json` — though there are open reports of
 those rules being ignored in headless mode.
 
+=======
+>>>>>>> 79a0d7f (feat(step-3): intent files, prompt sheet, BrowserMCP config and answer keys)
 ## Lab 1 — BrowserMCP (your own Chrome)
 
 ```
