@@ -1,0 +1,9 @@
+{
+  "_comment": "Copy to ~/.gemini/config/mcp_config.json to give Antigravity CLI BrowserMCP. Demo-time only — BrowserMCP is not part of this app or its CI.",
+  "mcpServers": {
+    "browsermcp": {
+      "command": "npx",
+      "args": ["-y", "@browsermcp/mcp@latest"]
+    }
+  }
+}
