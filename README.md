@@ -56,7 +56,7 @@ make test
 
 ---
 
-## Follow the talk, live
+## The demo steps:
 
 ```bash
 # Step 1 — no automation at all
