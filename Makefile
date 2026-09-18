@@ -19,20 +19,20 @@ build:              ## Production build of the demo app
 preview:            ## Serve the production build
 	pnpm preview
 
-test:               ## Run the Playwright suite headless (starts the app itself)
-	pnpm exec playwright test
+test:               ## Run the suite headless (SPEC=path/to.spec.ts to narrow it)
+	pnpm exec playwright test $(SPEC)
 
-test-headed:        ## Watch it: real browser window, slowed down (SLOWMO=$(SLOWMO)ms)
-	HEADED=1 SLOWMO=$(SLOWMO) pnpm exec playwright test
+test-headed:        ## Watch it: real browser, slowed down (SLOWMO=$(SLOWMO)ms, SPEC=… to narrow)
+	HEADED=1 SLOWMO=$(SLOWMO) pnpm exec playwright test $(SPEC)
 
 test-chrome:        ## Same, but drive your installed Google Chrome
-	HEADED=1 SLOWMO=$(SLOWMO) BROWSER=chrome pnpm exec playwright test
+	HEADED=1 SLOWMO=$(SLOWMO) BROWSER=chrome pnpm exec playwright test $(SPEC)
 
 test-ui:            ## Trace explorer: press the ▶ in the TESTS panel, then click an action
-	pnpm exec playwright test --ui
+	pnpm exec playwright test --ui $(SPEC)
 
 test-debug:         ## Step through action by action in the Playwright Inspector
-	PWDEBUG=1 HEADED=1 pnpm exec playwright test
+	PWDEBUG=1 HEADED=1 pnpm exec playwright test $(SPEC)
 
 restore-generated:  ## Fallback: copy the reference generated specs into tests/
 	./scripts/restore-generated.sh
