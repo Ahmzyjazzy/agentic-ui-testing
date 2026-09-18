@@ -128,6 +128,7 @@ mcp_config.example.json       BrowserMCP config (demo only, not used by the app)
 | `make dev`                          | Run the app on http://localhost:5173                     |
 | `make test`                         | Run the Playwright suite (boots the app itself)          |
 | `make test-headed` | Watch it run in a real browser, slowed down (`SLOWMO=800` to go slower) |
+| `make test SPEC=tests/auth/login.spec.ts` | Narrow any test target to one file — `SPEC=` works on `test`, `test-headed`, `test-chrome`, `test-ui`, `test-debug` |
 | `make test-chrome` | Same, driving your installed Google Chrome |
 | `make test-ui` / `make test-debug` | Playwright's interactive runner / the Inspector |
 | `make break-ui` / `make restore-ui` | Break and repair the selector-based tests                |
