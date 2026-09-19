@@ -114,6 +114,7 @@ tests/                        Playwright specs, generated from the intents (logi
 e2e/intents/                  intent files — what to test, in plain English
 e2e/runner/                   output contract + runner for agent-driven runs
 scripts/break-ui.sh           rename the classes selector-based tests depend on
+scripts/generate-specs.sh     regenerate every spec from the intent files (agy)
 docs/                         one doc per step, prompts, troubleshooting
 docs/examples/                the original selector-based specs, for contrast
 .github/workflows/e2e.yml     CI: plain Playwright, no agent
@@ -131,8 +132,30 @@ mcp_config.example.json       BrowserMCP config (demo only, not used by the app)
 | `make test SPEC=tests/auth/login.spec.ts` | Narrow any test target to one file — `SPEC=` works on `test`, `test-headed`, `test-chrome`, `test-ui`, `test-debug` |
 | `make test-chrome` | Same, driving your installed Google Chrome |
 | `make test-ui` / `make test-debug` | Playwright's interactive runner / the Inspector |
+| `make test-video` / `make report` | Record a `.webm` of every test, then open the report |
+| `make generate`                     | Regenerate every spec from `e2e/intents/` with `agy` — `INTENT=…` for one |
 | `make break-ui` / `make restore-ui` | Break and repair the selector-based tests                |
 | `./e2e/runner/run-intents.sh`       | Run every intent file through `agy` (needs Antigravity)  |
+
+**`make generate` vs `run-intents.sh`** — the two agent commands point in
+opposite directions, and it is worth being clear about which you want:
+
+| | `make generate` | `./e2e/runner/run-intents.sh` |
+|---|---|---|
+| Does what | Turns intents into Playwright code | Has the agent *perform* the intents against a running app |
+| You get | `tests/**/*.generated.spec.ts` to review and commit | `reports/*.result.json` and an exit code |
+| Runs when | You changed the UI or an intent, on your machine | Nightly or on demand, never on a PR |
+| Costs | One agent call per intent, once | One agent call per intent, per run |
+
+Regenerating locally, in full:
+
+```bash
+make dev        # another terminal — the agent runs what it writes
+make generate   # e2e/intents/**/*.intent.md → tests/**/*.generated.spec.ts
+```
+
+Add `DRY_RUN=1` to see the prompts without spending a call, `VERIFY=0` to skip
+the Playwright run at the end, or `INTENT=<path>` to redo just one.
 
 ---
 

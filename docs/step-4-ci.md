@@ -56,6 +56,25 @@ play the video from the intent's own test and watch it type into the form.
 
 Locally you get the same thing with `make test-video && make report`.
 
+## Regenerating the specs locally
+
+The generation step above happens on your machine, not in CI. One intent at a
+time is the stage version; the whole suite is one command:
+
+```bash
+make dev        # another terminal — the agent runs what it writes
+make generate   # every intent → tests/<same path>.generated.spec.ts, then a test run
+```
+
+`scripts/generate-specs.sh` sends the Lab 3 prompt once per intent file
+(`DRY_RUN=1` prints them without calling the agent, `INTENT=<path>` does one,
+`VERIFY=0` skips the final Playwright run). Review the diff, commit intent and
+spec together, and CI keeps running plain Playwright.
+
+Do not confuse it with `e2e/runner/run-intents.sh` below: that one *executes*
+intents with the agent and reports pass/fail, which is the nightly job — not the
+thing that writes your specs.
+
 ## When you *do* want the agent in CI
 
 Two good cases: a nightly smoke run of critical journeys against staging, and
