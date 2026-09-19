@@ -43,6 +43,19 @@ generated code.
 
 That's it. The agent never blocks a merge.
 
+## What the run leaves behind
+
+The job uploads `playwright-report/` as an artifact called **playwright-report**
+(Actions run → *Artifacts* at the bottom). Because `CI` is set, the config turns
+on video and traces, so the report is not just pass/fail — every test has a
+`.webm` of the browser and a trace you can scrub action by action. Download it,
+unzip, and open `index.html`.
+
+That is also the honest answer to *"is the test really doing what I said?"*:
+play the video from the intent's own test and watch it type into the form.
+
+Locally you get the same thing with `make test-video && make report`.
+
 ## When you *do* want the agent in CI
 
 Two good cases: a nightly smoke run of critical journeys against staging, and
