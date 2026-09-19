@@ -5,9 +5,9 @@ on:
   push:
     branches: [main]
 
-# Least privilege by default; the publishing job widens it for itself.
 permissions:
-  contents: read
+  contents: write        # push the report to the gh-pages branch
+  pull-requests: write   # leave the report link as a PR comment
 
 jobs:
   playwright:
@@ -24,45 +24,60 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec playwright install --with-deps chromium
+
       # Deterministic, fast, and free: the specs were generated from
       # e2e/intents/ on a developer machine and committed. No Antigravity here.
       # CI=true, so playwright.config.ts records a video and a trace per test.
       - id: run-tests
         run: pnpm exec playwright test
 
-      # Way 1 — download it. The zip on this run's page; unzip, open index.html.
-      - uses: actions/upload-artifact@v4
+      # ── Two ways to look at the report ────────────────────────────────────
+      # Everything below runs with `if: always()` so a failed suite still
+      # publishes — a red run is exactly the one you want to look at.
+
+      # 1. Download it: a zip on this run's page. Works on private repos too.
+      - name: Upload the report as an artifact
         if: always()
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
 
-      # Way 2 — stage the same report for the GitHub Pages job below.
-      # grafana-image / grafana-version are required inputs of this action and
-      # only end up in the published folder name; nothing here uses Grafana.
-      - uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@main
-        if: ${{ always() && !cancelled() }}
+      # 2. Open it: the same folder, served from the gh-pages branch under
+      #    runs/<run number>/. keep_files stops one run erasing the others.
+      #    Skipped for pull requests from forks — they get a read-only token.
+      - name: Publish the report to GitHub Pages
+        if: ${{ always() && github.event.pull_request.head.repo.fork != true }}
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          test-outcome: ${{ steps.run-tests.outcome }}
-          grafana-image: bookmi
-          grafana-version: demo
-          upload-successful-reports: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: playwright-report
+          destination_dir: runs/${{ github.run_number }}
+          keep_files: true
 
-  publish-report:
-    name: Publish report to GitHub Pages
-    needs: [playwright]
-    # Runs whether the suite passed or failed — a green report is worth seeing
-    # too. Skipped for pull requests from forks, which have no write token.
-    if: ${{ always() && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write        # push the report to the gh-pages branch
-      pull-requests: write   # comment the report URL on the PR
-    steps:
-      - uses: actions/checkout@v4
-      - uses: grafana/plugin-actions/playwright-gh-pages/deploy-report-pages@main
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          retention-days: 30
-          pr-comment-summary: true
+      # Put the link where people will see it: the run summary always, and a
+      # comment on the pull request when there is one.
+      - name: Share the report link
+        if: ${{ always() && github.event.pull_request.head.repo.fork != true }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RESULT: ${{ steps.run-tests.outcome }}
+          PR: ${{ github.event.number }}
+        run: |
+          URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/runs/${{ github.run_number }}/"
+          [ "$RESULT" = "success" ] && MARK="✅ passed" || MARK="❌ failed"
+
+          BODY="**Playwright $MARK** — [open the report]($URL)
+
+          Videos and traces for every test are in there. The same report is also
+          attached to the run as the \`playwright-report\` artifact."
+
+          echo "$BODY" >> "$GITHUB_STEP_SUMMARY"
+
+          # On a pull request, keep one comment and update it instead of
+          # adding a new one on every push.
+          if [ -n "$PR" ]; then
+            gh pr comment "$PR" --body "$BODY" --edit-last 2>/dev/null \
+              || gh pr comment "$PR" --body "$BODY"
+          fi

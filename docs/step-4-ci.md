@@ -40,9 +40,8 @@ generated code.
 - run: pnpm exec playwright install --with-deps chromium
 - id: run-tests
   run: pnpm exec playwright test   # no agent, no AI cost
-- uses: actions/upload-artifact@v4  # the report, as a zip
-- uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@main
-# …and a second job publishes the same report to GitHub Pages
+- uses: actions/upload-artifact@v4       # the report, as a downloadable zip
+- uses: peaceiris/actions-gh-pages@v4    # …and the same report, as a URL
 ```
 
 That's it. The agent never blocks a merge.
@@ -55,42 +54,81 @@ the journey and scrub the trace action by action. That is the honest answer to
 *"is the test really doing what I said?"*: play the video from the intent's own
 test and watch it type into the form.
 
-The workflow publishes that report **two ways**, because both are useful:
+The workflow offers that report **two ways**, because both are useful:
 
-**1. Download the artifact.** On the run's page, *Artifacts* → **playwright-report**.
-Unzip it, open `index.html`. Works on private repos, needs no setup, kept 7 days.
+**1. Download it.** On the run's page, *Artifacts* → **playwright-report**.
+Unzip, open `index.html`. No setup, works on private repos and on pull requests
+from forks, kept 7 days.
 
-**2. Open the URL.** The `publish-report` job pushes the same report to the
-`gh-pages` branch, one folder per run, and posts the link as a comment on the
-pull request (and in the run summary). Click it and the report opens in the
-browser — videos play, traces open in the Trace Viewer — with nothing to
-download. Reports are pruned after 30 days.
+**2. Open it.** The same folder is pushed to the `gh-pages` branch under
+`runs/<run number>/` and served by GitHub Pages, so there is a link to click —
+videos play and traces open in the browser, nothing to download. The link goes
+in the run summary, and on a pull request into a comment that is edited in
+place rather than added to on every push.
 
-Both come from the same `playwright-report/` folder; the only difference is
+Both come from the same `playwright-report/` folder. The only difference is
 whether you fetch it or it is served to you.
 
-### Turning the Pages path on
+### The publishing steps
+
+Four steps, no magic:
+
+```yaml
+- name: Upload the report as an artifact
+  if: always()
+  uses: actions/upload-artifact@v4
+  with:
+    name: playwright-report
+    path: playwright-report/
+
+- name: Publish the report to GitHub Pages
+  if: ${{ always() && github.event.pull_request.head.repo.fork != true }}
+  uses: peaceiris/actions-gh-pages@v4
+  with:
+    github_token: ${{ secrets.GITHUB_TOKEN }}
+    publish_dir: playwright-report
+    destination_dir: runs/${{ github.run_number }}
+    keep_files: true
+```
+
+then a `run:` step that builds the URL and writes it to `$GITHUB_STEP_SUMMARY`
+and, on a pull request, to a comment via `gh pr comment --edit-last`.
+
+Worth understanding rather than copying blindly:
+
+- **`if: always()`** — without it, a failed suite skips these steps and you lose
+  the report for the run you most wanted to see.
+- **`destination_dir: runs/<run number>`** — one folder per run, so run 41 does
+  not overwrite run 40.
+- **`keep_files: true`** — publish into that folder without wiping the rest of
+  the branch. Leave it out and each run erases the previous ones.
+- **`permissions:`** at the top of the workflow — `contents: write` to push to
+  `gh-pages`, `pull-requests: write` for the comment. On a repo where that feels
+  too broad for a test job, move the two publishing steps into a separate job
+  that `needs:` this one and holds those permissions alone.
+
+### Turning it on
 
 Once, in the repo: **Settings → Pages → Build and deployment → Deploy from a
 branch → `gh-pages` / `(root)`**. The branch is created by the first run that
-publishes, so do a run first if the dropdown has nothing to pick.
+publishes, so push first, let a run finish, then pick it — the dropdown is empty
+until then. Until you do this, the link in the summary 404s while the artifact
+keeps working.
 
-Two things worth knowing before you enable this on a real repo:
+Two things to know before putting this on a real repo:
 
 - **A published report is public if the repo is public.** Failure screenshots,
-  videos and traces of production data go with it. On a private repo the Pages
-  site follows the repo's visibility, which is the reason the download path
-  stays in the workflow.
-- **Forked pull requests are skipped** — they get a read-only token, so there is
-  nothing to push with. Contributors from forks still get the artifact.
+  videos and traces of whatever data the test touched go with it. That is fine
+  for a demo app with fake hosts, and a leak on a product repo.
+- **Fork pull requests are skipped.** They get a read-only token, so there is
+  nothing to push with — that is the `github.event.pull_request.head.repo.fork`
+  check. Contributors from forks still get the artifact.
 
-The publishing steps come from
-[grafana/plugin-actions](https://github.com/grafana/plugin-actions/blob/main/playwright-gh-pages/README.md):
-`upload-report-artifacts` stages the report, `deploy-report-pages` pushes it and
-comments the link. Its `grafana-image` / `grafana-version` inputs are required by
-the action and only shape the published folder name — nothing here runs Grafana.
-Both are referenced at `@main`, which is what their README documents; pin them to
-a commit SHA if you would rather they never move under you.
+Old folders accumulate on `gh-pages`. For a demo that is fine; on a busy repo
+add a step that deletes `runs/*` folders past whatever age you want.
+
+**Only want the zip?** Delete the two publishing steps and the `permissions:`
+block. The download path is self-contained and needs no repo settings at all.
 
 Locally you get the same report with `make test-video && make report`.
 
