@@ -9,11 +9,17 @@ import { defineConfig, devices } from "@playwright/test";
  *   SLOWMO=600          milliseconds to pause between actions (default 400 when headed)
  *   BROWSER=chrome      drive your installed Google Chrome instead of bundled Chromium
  *   PWDEBUG=1           Playwright Inspector: step through action by action
+ *   VIDEO=1             record a .webm of every test, even when it passes
  *
  * The Makefile wraps these: `make test-headed`, `make test-chrome`, `make test-debug`.
  */
 const headed = process.env.HEADED === "1" || process.env.HEADED === "true";
 const slowMo = Number(process.env.SLOWMO ?? (headed ? 400 : 0));
+
+// Record video for every test in CI, so the uploaded report is something you can
+// watch, and locally whenever you ask for it: `make test VIDEO=1`. Headed runs
+// skip it — you are already watching the browser.
+const video = !headed && (process.env.VIDEO === "1" || !!process.env.CI) ? "on" : "off";
 
 export default defineConfig({
   testDir: "./tests",
@@ -25,10 +31,11 @@ export default defineConfig({
     baseURL: process.env.APP_URL ?? "http://localhost:5173",
     headless: !headed,
     launchOptions: { slowMo },
-    // Always trace locally so UI mode and the trace viewer have something to show.
-    trace: process.env.CI ? "on-first-retry" : "on",
+    // Always trace: UI mode and the trace viewer need one locally, and in CI the
+    // HTML report ships a per-test timeline you can scrub through after the fact.
+    trace: "on",
     screenshot: "only-on-failure",
-    video: headed ? "off" : "off",
+    video,
   },
   projects: [
     {

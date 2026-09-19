@@ -5,7 +5,7 @@ SLOWMO ?= 400
 # bare argument:  make test-headed SPEC=tests/auth/login.spec.ts
 SPEC ?=
 
-.PHONY: install dev build preview test test-headed test-chrome test-ui test-debug break-ui restore-ui
+.PHONY: install dev build preview test test-headed test-chrome test-ui test-debug test-video report break-ui restore-ui
 
 install:            ## Install app + test dependencies (pnpm workspace)
 	pnpm install
@@ -33,6 +33,12 @@ test-ui:            ## Trace explorer: press the ▶ in the TESTS panel, then cl
 
 test-debug:         ## Step through action by action in the Playwright Inspector
 	PWDEBUG=1 HEADED=1 pnpm exec playwright test $(SPEC)
+
+test-video:         ## Record a .webm of every test into playwright-report/ (SPEC=… to narrow)
+	VIDEO=1 pnpm exec playwright test --reporter=html $(SPEC)
+
+report:             ## Open the last HTML report — videos and traces included
+	pnpm exec playwright show-report
 
 break-ui:           ## Rename the classes the selector-based tests depend on
 	./scripts/break-ui.sh

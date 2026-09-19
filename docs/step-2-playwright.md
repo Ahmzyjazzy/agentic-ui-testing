@@ -51,6 +51,7 @@ Headless is right for CI, but on stage people want to see the browser:
 | `make test-chrome` | Drives your installed Google Chrome instead of bundled Chromium |
 | `make test-ui` | Playwright's trace explorer — run tests, then replay each action |
 | `make test-debug` | Playwright Inspector — step through action by action |
+| `make test-video` | Headless, but records a `.webm` of every test; `make report` opens them |
 | `make test-headed SPEC=tests/auth/login.spec.ts` | Just one file — `SPEC=` also works on `test`, `test-chrome`, `test-ui`, `test-debug` |
 
 `SPEC` has to be a variable, not a bare argument: `make test-headed
