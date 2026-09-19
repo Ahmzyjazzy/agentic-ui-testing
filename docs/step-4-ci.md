@@ -38,23 +38,61 @@ generated code.
   with: { version: 10.15.0 }
 - run: pnpm install --frozen-lockfile
 - run: pnpm exec playwright install --with-deps chromium
-- run: pnpm exec playwright test   # no agent, no AI cost
+- id: run-tests
+  run: pnpm exec playwright test   # no agent, no AI cost
+- uses: actions/upload-artifact@v4  # the report, as a zip
+- uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@main
+# …and a second job publishes the same report to GitHub Pages
 ```
 
 That's it. The agent never blocks a merge.
 
 ## What the run leaves behind
 
-The job uploads `playwright-report/` as an artifact called **playwright-report**
-(Actions run → *Artifacts* at the bottom). Because `CI` is set, the config turns
-on video and traces, so the report is not just pass/fail — every test has a
-`.webm` of the browser and a trace you can scrub action by action. Download it,
-unzip, and open `index.html`.
+Because `CI` is set, `playwright.config.ts` records a video and a trace for
+every test, so the report is not just pass/fail — you can watch the browser do
+the journey and scrub the trace action by action. That is the honest answer to
+*"is the test really doing what I said?"*: play the video from the intent's own
+test and watch it type into the form.
 
-That is also the honest answer to *"is the test really doing what I said?"*:
-play the video from the intent's own test and watch it type into the form.
+The workflow publishes that report **two ways**, because both are useful:
 
-Locally you get the same thing with `make test-video && make report`.
+**1. Download the artifact.** On the run's page, *Artifacts* → **playwright-report**.
+Unzip it, open `index.html`. Works on private repos, needs no setup, kept 7 days.
+
+**2. Open the URL.** The `publish-report` job pushes the same report to the
+`gh-pages` branch, one folder per run, and posts the link as a comment on the
+pull request (and in the run summary). Click it and the report opens in the
+browser — videos play, traces open in the Trace Viewer — with nothing to
+download. Reports are pruned after 30 days.
+
+Both come from the same `playwright-report/` folder; the only difference is
+whether you fetch it or it is served to you.
+
+### Turning the Pages path on
+
+Once, in the repo: **Settings → Pages → Build and deployment → Deploy from a
+branch → `gh-pages` / `(root)`**. The branch is created by the first run that
+publishes, so do a run first if the dropdown has nothing to pick.
+
+Two things worth knowing before you enable this on a real repo:
+
+- **A published report is public if the repo is public.** Failure screenshots,
+  videos and traces of production data go with it. On a private repo the Pages
+  site follows the repo's visibility, which is the reason the download path
+  stays in the workflow.
+- **Forked pull requests are skipped** — they get a read-only token, so there is
+  nothing to push with. Contributors from forks still get the artifact.
+
+The publishing steps come from
+[grafana/plugin-actions](https://github.com/grafana/plugin-actions/blob/main/playwright-gh-pages/README.md):
+`upload-report-artifacts` stages the report, `deploy-report-pages` pushes it and
+comments the link. Its `grafana-image` / `grafana-version` inputs are required by
+the action and only shape the published folder name — nothing here runs Grafana.
+Both are referenced at `@main`, which is what their README documents; pin them to
+a commit SHA if you would rather they never move under you.
+
+Locally you get the same report with `make test-video && make report`.
 
 ## Regenerating the specs locally
 

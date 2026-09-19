@@ -117,7 +117,7 @@ scripts/break-ui.sh           rename the classes selector-based tests depend on
 scripts/generate-specs.sh     regenerate every spec from the intent files (agy)
 docs/                         one doc per step, prompts, troubleshooting
 docs/examples/                the original selector-based specs, for contrast
-.github/workflows/e2e.yml     CI: plain Playwright, no agent
+.github/workflows/e2e.yml     CI: plain Playwright, no agent — report as an artifact and on GitHub Pages
 mcp_config.example.json       BrowserMCP config (demo only, not used by the app)
 ```
 
