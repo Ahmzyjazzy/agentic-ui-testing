@@ -5,7 +5,11 @@ SLOWMO ?= 400
 # bare argument:  make test-headed SPEC=tests/auth/login.spec.ts
 SPEC ?=
 
-.PHONY: install dev build preview test test-headed test-chrome test-ui test-debug test-video report restore-generated break-ui restore-ui
+# Regenerate one intent instead of all of them:
+#   make generate INTENT=e2e/intents/auth/login.intent.md
+INTENT ?=
+
+.PHONY: install dev build preview test test-headed test-chrome test-ui test-debug test-video report generate restore-generated break-ui restore-ui
 
 install:            ## Install app + test dependencies (pnpm workspace)
 	pnpm install
@@ -33,6 +37,9 @@ test-ui:            ## Trace explorer: press the ▶ in the TESTS panel, then cl
 
 test-debug:         ## Step through action by action in the Playwright Inspector
 	PWDEBUG=1 HEADED=1 pnpm exec playwright test $(SPEC)
+
+generate:           ## Regenerate every spec from e2e/intents/ with agy (INTENT=… for one)
+	./scripts/generate-specs.sh $(INTENT)
 
 restore-generated:  ## Fallback: copy the reference generated specs into tests/
 	./scripts/restore-generated.sh

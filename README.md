@@ -87,6 +87,32 @@ make test-headed SLOWMO=600 SPEC=tests/auth/login.generated.spec.ts
 make restore-ui
 ```
 
+## Regenerating the whole suite
+
+Step 4 above generates one spec, because on stage one is enough. Locally you
+usually want all of them — after a real UI change, or just to see the workflow
+end to end:
+
+```bash
+make dev          # in another terminal: the agent runs what it writes
+make generate     # every file in e2e/intents/ → tests/<same path>.generated.spec.ts
+```
+
+That is `scripts/generate-specs.sh`: one `agy` call per intent file, the Lab 3
+prompt each time, then a Playwright run over everything it produced. Useful
+flags:
+
+| Command | What it does |
+|---|---|
+| `make generate INTENT=e2e/intents/auth/login.intent.md` | Just that one intent |
+| `DRY_RUN=1 ./scripts/generate-specs.sh` | Print the prompts it would send, call nothing |
+| `VERIFY=0 ./scripts/generate-specs.sh` | Generate without the final test run |
+| `APP_URL=… ./scripts/generate-specs.sh` | Point the agent at another running copy |
+
+Generated specs are gitignored on this branch — they are the lab. On `main`
+they are committed, because that is the point: intent and spec reviewed side by
+side.
+
 The agent prompts from [docs/prompts.md](docs/prompts.md) (Labs 1 and 2) also
 pass against the broken UI — run those first if you want the wow before the
 workflow.

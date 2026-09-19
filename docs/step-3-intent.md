@@ -149,6 +149,36 @@ Roles and labels describe what the user sees, so a class rename doesn't touch
 them. When a change *is* big enough to break the generated spec, you don't
 debug selectors — you regenerate from the intent (Lab 3b prompt).
 
+## Regenerating every spec, not just one
+
+One prompt per spec is fine on stage. Back at your desk, after a real UI change,
+you want the whole suite refreshed:
+
+```bash
+make dev        # another terminal — the agent runs the spec it writes
+make generate   # e2e/intents/**/*.intent.md → tests/**/*.generated.spec.ts
+```
+
+`scripts/generate-specs.sh` loops the intent files, sends the Lab 3 prompt for
+each one with `agy -p … --dangerously-skip-permissions`, checks a file actually
+landed, and finishes with one Playwright run over everything it produced. The
+destination is derived from the intent's path, so
+`e2e/intents/dashboard/wallet-overview.intent.md` becomes
+`tests/dashboard/wallet-overview.generated.spec.ts`.
+
+| Variant | When |
+|---|---|
+| `make generate INTENT=e2e/intents/auth/login.intent.md` | One intent changed |
+| `DRY_RUN=1 ./scripts/generate-specs.sh` | See the exact prompts first — no agent calls, no cost |
+| `VERIFY=0 ./scripts/generate-specs.sh` | Generate now, run the tests yourself later |
+| `APP_URL=http://localhost:4173 ./scripts/generate-specs.sh` | Generate against a preview build |
+
+**Two scripts, opposite directions.** `scripts/generate-specs.sh` turns intents
+into code you review and commit — that's this, and it is where the agent
+belongs. `e2e/runner/run-intents.sh` hands the intents to the agent to *execute*
+against a running app and writes a pass/fail JSON — that's the nightly smoke
+job in [step-4-ci.md](step-4-ci.md), not something your PRs wait on.
+
 ## Talking points
 
 - Prompts are the demo; intent files are the deliverable.

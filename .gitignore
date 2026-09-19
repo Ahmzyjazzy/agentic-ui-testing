@@ -9,4 +9,4 @@ reports/
 *.local
 
 # Generated live during Lab 3 — the reference copies live in docs/examples/
-tests/auth/*.generated.spec.ts
+tests/**/*.generated.spec.ts
